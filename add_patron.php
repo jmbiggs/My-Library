@@ -34,7 +34,7 @@
 
 
 </head>
-<body bgcolor="black" text="white" link="white" vlink="white">
+<body>
 
 <?php
 
@@ -46,7 +46,7 @@
     if( $_POST == null ){
 ?>
 
-<h2>Add a new patron:</h2>
+<h2>Register a new patron:</h2>
 <form name="search" method=post onsubmit="return check_all_fields(this)" action="add_patron.php">
     <input type=hidden name="searchAttribute" value="addPatron">
     Full name:
@@ -80,7 +80,7 @@
 
 ?>
 
-    <BR><a href="add_patron.jsp"> Add another patron </a>
+    <BR><a href="add_patron.php"> Add another patron </a>
     <BR><a href="index.html"> Main menu </a></p>
 
 </body>

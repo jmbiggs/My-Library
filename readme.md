@@ -45,7 +45,7 @@ Example media types:
 
 ### API Support
 
-Certain media types will be able to have additional information pulled from APIs.
+Certain media types will be able to have additional information pulled from existing APIs.
 (Discogs, Open Library, IMDB, etc.)
 
 ## Patrons
@@ -67,5 +67,11 @@ Patrons will be stored simply as a
 
 # TO DO:
 
-* Need to learn how to store database access information (username, password, etc) securely, instead of in plain text in the PHP file.
-* Need to figure out how to pull information from APIs
+* Finish manager php file
+* Finish constructing webpages
+* Learn how to use CSS to simplify web formatting
+* Learn how to store database access information (username, password, etc) securely, instead of in plain text in the PHP file.
+* Learn how to pull information from APIs
+* Write instructions on how to use
+
+

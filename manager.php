@@ -25,6 +25,8 @@ class Manager {
         $name_ = $name;
         $email_ = $email;
 
+        //TODO: display the user's generated id number
+
         if ($ps->execute() === TRUE) {
             echo "Created patron: " . $name . "<br>";
         } else {
