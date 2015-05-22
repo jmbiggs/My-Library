@@ -20,17 +20,13 @@ class Manager {
         $ps = $con->prepare($query);
 
         // set up and execute query (using MySQLi)
-        $ps->bind_param("ss", $name_, $email_);
-
-        $name_ = $name;
-        $email_ = $email;
-
-        //TODO: display the user's generated id number
+        $ps->bind_param("ss", $name, $email);
 
         if ($ps->execute() === TRUE) {
-            echo "Created patron: " . $name . "<br>";
+            $generated_id = $con->insert_id;
+            echo $name . " successfully registered. <br><br> Assigned ID number: " . $generated_id . "<br>";
         } else {
-            echo "Error: " . $sql . "<br>" . $conn->error;
+            echo "Error: " . $query . "<br>" . $con->error;
         }
 
         $ps->close();
@@ -52,8 +48,22 @@ class Manager {
 
     }
 
+    /*
+     * add an item record into the database
+     */
+    public function addItem($ISBN, $ItemCondition, $MediaType, $AcquireDate, $Notes, $Title, $ShelfLoc, $PubDate, $APILink, $Authors, $AuthorTypes)
+    {
+        //TODO: how to deal with authors??
 
+    }
 
+    /*
+     * checks an item out to given user, with given number of days as checkout time
+     */
+    public function checkOut($itemNo, $patronNo, $days)
+    {
+
+    }
 
 
 }
