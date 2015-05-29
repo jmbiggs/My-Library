@@ -1,6 +1,6 @@
 # My Library
 
-A simple person library management system designed to help you organize your media collection, and keep track of who you lend things to.
+A simple personal library management system designed to help you organize your media collection, and keep track of who you lend things to.
 
 The basic idea is to store collection information in a MySQL database accessible via a PHP web interface.
 
