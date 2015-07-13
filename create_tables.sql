@@ -7,7 +7,7 @@ CREATE TABLE Patron (
 
 CREATE TABLE Item (
 	ItemNo int AUTO_INCREMENT,
-	ISBN tinytext NOT NULL,
+	ISBN tinytext,
 	ItemCondition tinytext,
 	MediaType tinytext NOT NULL,
 	AquireDate date,

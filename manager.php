@@ -51,10 +51,51 @@ class Manager {
     /*
      * add an item record into the database
      */
-    public function addItem($ISBN, $ItemCondition, $MediaType, $AcquireDate, $Notes, $Title, $ShelfLoc, $PubDate, $APILink, $Authors, $AuthorTypes)
+    public function addItem($ISBN, $ItemCondition, $MediaType, $Notes, $Title, $ShelfLoc, $PubDate, $APILink, $Authors, $AuthorTypes, $con)
     {
-        //TODO: how to deal with authors??
+        // get a date timestamp
+        $date = date_default_timezone_get();
+        $AqDate = date('Y-m-d', strtotime(str_replace('-', '/', $date)));
 
+        // set up and execute query
+
+        $query = "INSERT INTO Item (ISBN, ItemCondition, MediaType, AquireDate, Notes, Title, ShelfLoc, PubDate, APILink) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        $ps = $con->prepare($query);
+
+        // set up and execute query (using MySQLi)
+        $ps->bind_param("sssssssss", $ISBN, $ItemCondition, $MediaType, $AqDate, $Notes, $Title, $ShelfLoc, $PubDate, $APILink);
+
+        $generated_id = -1;
+        if ($ps->execute() === TRUE) {
+            $generated_id = $con->insert_id;
+        } else {
+            echo "Error: " . $query . "<br>" . $con->error;
+            return;
+        }
+
+        $ps->close();
+
+        // now deal with authors
+
+        for ($i=0; $i<$Authors->count(); $i++){
+
+            $query = "INSERT INTO Authored (Author, ItemNo, AuthType) VALUES (?, ?, ?)";
+            $ps = $con->prepare($query);
+
+            $author = $Authors[$i];
+            $authortype = $AuthorTypes[$i];
+
+            // set up and execute query (using MySQLi)
+            $ps->bind_param("sis", $author, $generated_id, $authortype);
+
+            if ($ps->execute() === FALSE) {
+                echo "Error: " . $query . "<br>" . $con->error;
+                return;
+            }
+        }
+
+        echo $Title . " successfully added. <br><br> Assigned ID number: " . $generated_id . "<br>";
     }
 
     /*
