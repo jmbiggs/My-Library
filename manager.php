@@ -17,7 +17,12 @@ class Manager {
 
         $query = "INSERT INTO Patron (name, email) VALUES (?, ?)";
 
-        $ps = $con->prepare($query);
+        if (!$ps = $con->prepare($query))
+        {
+            echo "Error: " . $con->error;
+            return;
+        }
+
 
         // set up and execute query (using MySQLi)
         $ps->bind_param("ss", $name, $email);
@@ -59,9 +64,13 @@ class Manager {
 
         // set up and execute query
 
-        $query = "INSERT INTO Item (ISBN, ItemCondition, MediaType, AquireDate, Notes, Title, ShelfLoc, PubDate, APILink) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $query = "INSERT INTO Item (ISBN, ItemCondition, MediaType, AcquireDate, Notes, Title, ShelfLoc, PubDate, APILink) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        $ps = $con->prepare($query);
+        if (!$ps = $con->prepare($query))
+        {
+            echo "Error: " . $con->error;
+            return;
+        }
 
         // set up and execute query (using MySQLi)
         $ps->bind_param("sssssssss", $ISBN, $ItemCondition, $MediaType, $AqDate, $Notes, $Title, $ShelfLoc, $PubDate, $APILink);
@@ -78,20 +87,26 @@ class Manager {
 
         // now deal with authors
 
-        for ($i=0; $i<$Authors->count(); $i++){
+        if (isset($Authors) && is_array($Authors)) {
+            for ($i = 0; $i < count($Authors); $i++) {
 
-            $query = "INSERT INTO Authored (Author, ItemNo, AuthType) VALUES (?, ?, ?)";
-            $ps = $con->prepare($query);
+                $query = "INSERT INTO Authored (Author, ItemNo, AuthType) VALUES (?, ?, ?)";
+                if (!$ps = $con->prepare($query)) {
+                    echo "Error: " . $con->error;
+                    return;
+                }
 
-            $author = $Authors[$i];
-            $authortype = $AuthorTypes[$i];
 
-            // set up and execute query (using MySQLi)
-            $ps->bind_param("sis", $author, $generated_id, $authortype);
+                $author = $Authors[$i];
+                $authortype = $AuthorTypes[$i];
 
-            if ($ps->execute() === FALSE) {
-                echo "Error: " . $query . "<br>" . $con->error;
-                return;
+                // set up and execute query (using MySQLi)
+                $ps->bind_param("sis", $author, $generated_id, $authortype);
+
+                if ($ps->execute() === FALSE) {
+                    echo "Error: " . $query . "<br>" . $con->error;
+                    return;
+                }
             }
         }
 
