@@ -19,7 +19,10 @@ class Manager {
 
         if (!$ps = $con->prepare($query))
         {
-            echo "Error: " . $con->error;
+            if (empty ($con))
+                echo "Error: No connection established.";
+            else
+                echo "Error: " . $con->error;
             return;
         }
 
@@ -68,7 +71,10 @@ class Manager {
 
         if (!$ps = $con->prepare($query))
         {
-            echo "Error: " . $con->error;
+            if (empty ($con))
+                echo "Error: No connection established.";
+            else
+                echo "Error: " . $con->error;
             return;
         }
 

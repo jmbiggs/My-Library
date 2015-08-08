@@ -12,7 +12,7 @@
                 return false;
             }
             else if( form_obj.mediatype.value == ""){
-                alert("Media Type field should be nonempty");
+                alert("Please select a Media Type");
                 return false;
             }
             return true;
@@ -54,7 +54,23 @@ if( $_POST == null ){
         Title (required):
         <input type="text" name="title" length=40><br>
         MediaType (required):
-        <input type="text" name="mediatype" length=20><br>
+        <select name="mediatype">
+            <option value="">Select...</option>
+            <option value="Hardcover book">Hardcover book</option>
+            <option value="Paperback book">Paperback book</option>
+            <option value="Magazine">Magazine</option>
+            <option value="Zine">Zine</option>
+            <option value="LP Record">LP Record</option>
+            <option value="7-Inch Record">7" Record</option>
+            <option value="CD">CD</option>
+            <option value="CD-R">CD-R</option>
+            <option value="Cassette tape">Cassette tape</option>
+            <option value="VHS">VHS</option>
+            <option value="Laserdisc">Laserdisc</option>
+            <option value="DVD">DVD</option>
+            <option value="Blu-Ray">Blu-Ray</option>
+
+        </select><br>
         Publication Date:
         <input type="text" name="pubdate" length=20><br>
         Condition:
