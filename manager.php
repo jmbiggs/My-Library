@@ -132,6 +132,83 @@ class Manager {
 
     }
 
+    /*
+     * displays information about patron with given patronNo OR username
+     */
+    public function patronRecord($patronNo, $username, $con)
+    {
+
+        // Start by retrieving card number, username, and email address
+
+        // set up variables to store this info
+        $retrievedPatronNo = null;
+        $retrievedUsername = null;
+        $retrievedEmail = null;
+
+        // set up query
+        if (isset($patronNo)) // look up record by patron number
+        {
+            //$query = "SELECT * FROM Patron WHERE PatronNo = ?"; // SAFER --- FIGURE OUT HOW TO DO IT THIS WAY!!
+            $query = "SELECT * FROM Patron WHERE PatronNo = '" . $patronNo . "'";
+        }
+        else // look up record by username
+        {
+            //$query = "SELECT * FROM Patron WHERE Name = ?";
+            $query = "SELECT * FROM Patron WHERE Name = '" . $username . "'";
+        }
+
+        /*
+
+        // set up prepared statement
+        if (!$ps = $con->prepare($query))
+        {
+            if (empty ($con))
+                echo "Error: No connection established.";
+            else
+                echo "Error: " . $con->error;
+            return;
+        }
+
+        // bind variables to query (using MySQLi)
+        if (isset($patronNo)) {
+            $ps->bind_param("i", $patronNo);
+        }
+        else {
+            $ps->bind_param("s", $username);
+        }
+
+        */
+
+        // execute query and get results
+        $result = $con->query($query);
+
+        if (!$result) {
+            echo "Error: " . $query . "<br>" . $con->error;
+            return;
+        }
+        elseif ($result->num_rows > 0){
+            $row = $result->fetch_assoc();
+            $retrievedPatronNo = $row["PatronNo"];
+            $retrievedUsername = $row["Name"];
+            $retrievedEmail = $row["Email"];
+            $result->close();
+        } else {
+            echo "No patron found with Patron Number: " . $patronNo . " Username: " . $username . "<br>";
+            $result->close();
+            return;
+        }
+
+
+        // TODO: get info about checked out books
+
+
+        // Print results
+
+        echo "Name: " . $retrievedUsername . "<br>";
+        echo "Patron number: " . $retrievedPatronNo . "<br>";
+        echo "Email: " . $retrievedEmail . "<br>";
+
+    }
 
 }
 
