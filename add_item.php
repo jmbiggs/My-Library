@@ -18,6 +18,42 @@
             return true;
         }
 
+        var numAuthors=1;
+
+        // add author text box element
+        function addAuthor()
+        {
+            numAuthors++;
+
+            var authorParagraph = document.getElementById("authors");
+
+            var authorHTML = document.createElement("div");
+            authorHTML.setAttribute("id","author"+numAuthors+"section");
+            authorHTML.innerHTML = "Author #"+numAuthors.toString()+": " +
+                                    "<input type='text' name='author"+numAuthors.toString()+"' size=30>" +
+                                    " Type: <select name='author"+numAuthors.toString()+"type'>" +
+                                        "<option value=''>Select...</option>" +
+                                        "<option value='Writer'>Writer</option>" +
+                                        "<option value='Introduction'>Introduction</option>" +
+                                        "<option value='Illustrator'>Illustrator</option> " +
+                                    "</select>" +
+                                    "<br>";
+
+            authorParagraph.appendChild(authorHTML);
+        }
+
+        // remove author text box element
+        function removeAuthor()
+        {
+           if(numAuthors > 1)
+            {
+                var authorParagraph = document.getElementById("authors");
+                authorParagraph.removeChild(document.getElementById("author"+numAuthors+"section"));
+                numAuthors--;
+            }
+        }
+
+
     </script>
 
     <style>
@@ -44,56 +80,84 @@ require "manager.php";
 
 // if no form has been submitted yet, load the submission form html
 if( $_POST == null ){
+
     ?>
 
     <h2>Add a new item:</h2>
     <form name="search" method=post onsubmit="return check_all_fields(this)" action="add_item.php">
-        <input type=hidden name="searchAttribute" value="addItem">
-        ISBN:
-        <input type="text" name="isbn" length=40><br>
-        Title (required):
-        <input type="text" name="title" length=40><br>
-        MediaType (required):
-        <select name="mediatype">
-            <option value="">Select...</option>
-            <option value="Hardcover book">Hardcover book</option>
-            <option value="Paperback book">Paperback book</option>
-            <option value="Magazine">Magazine</option>
-            <option value="Zine">Zine</option>
-            <option value="LP Record">LP Record</option>
-            <option value="7-Inch Record">7" Record</option>
-            <option value="CD">CD</option>
-            <option value="CD-R">CD-R</option>
-            <option value="Cassette tape">Cassette tape</option>
-            <option value="VHS">VHS</option>
-            <option value="Laserdisc">Laserdisc</option>
-            <option value="DVD">DVD</option>
-            <option value="Blu-Ray">Blu-Ray</option>
+        <input type="hidden" name="searchAttribute" value="addItem">
+        <p>
+          ISBN:
+           <input type="text" name="isbn" size=40>
+        </p>
+        <p>
+          Title (required):
+          <input type="text" name="title" size=40>
+        </p>
 
-        </select><br>
-        Publication Date:
-        <input type="text" name="pubdate" length=20><br>
-        Condition:
-        <input type="text" name="condition" length=20><br>
-        Notes:
-        <input type="text" name="notes" length=50><br>
-        Shelf Location:
-        <input type="text" name="shelfloc" length=20><br>
-        API Link:
-        <input type="text" name="apilink" length=40><br>
-        Author 1:
-        <input type="text" name="author1" length=30><br>
-        Author 1 Type:
-        <input type="text" name="author1type" length=10><br>
-        Author 2:
-        <input type="text" name="author2" length=30><br>
-        Author 2 Type:
-        <input type="text" name="author2type" length=10><br>
-        Author 3:
-        <input type="text" name="author3" length=30><br>
-        Author 3 Type:
-        <input type="text" name="author3type" length=10><br>
-        <input type=submit>
+        <!-- DYNAMICALLY ADD TEXT BOXES TO ACCOMMODATE AN ARBITRARY NUMBER OF AUTHORS -->
+
+        <p id="authors">
+            <input type=hidden name="authorsCount" value=numAuthors>
+            Author #1:
+            <input type="text" name="author1" size=30>
+            Type:
+            <select name="author1type">
+                <option value="">Select...</option>
+                <option value="Writer">Writer</option>
+                <option value="Introduction">Introduction</option>
+                <option value="Illustrator">Illustrator</option>
+            </select>
+            <br>
+        </p>
+        <p>
+            <input type="button" onclick="addAuthor()" value="Add another author">
+           <input type="button" onclick="removeAuthor()" value="Remove last author">
+        </p>
+        <p>
+            MediaType (required):
+            <select name="mediatype">
+                <option value="">Select...</option>
+                <option value="Hardcover book">Hardcover book</option>
+                <option value="Paperback book">Paperback book</option>
+                <option value="Magazine">Magazine</option>
+                <option value="Zine">Zine</option>
+                <option value="LP Record">LP Record</option>
+                <option value="7-Inch Record">7" Record</option>
+                <option value="CD">CD</option>
+                <option value="CD-R">CD-R</option>
+                <option value="Cassette tape">Cassette tape</option>
+                <option value="VHS">VHS</option>
+                <option value="Laserdisc">Laserdisc</option>
+                <option value="DVD">DVD</option>
+                <option value="Blu-Ray">Blu-Ray</option>
+
+            </select>
+        </p>
+        <p>
+            Publication Date:
+            <input type="text" name="pubdate" size=20>
+        </p>
+        <p>
+            Condition:
+            <input type="text" name="condition" size=20>
+        </p>
+        <p>
+            Notes:
+            <input type="text" name="notes" size=50>
+        </p>
+        <p>
+            Shelf Location:
+            <input type="text" name="shelfloc" size=20>
+        </p>
+        <p>
+            API Link:
+            <input type="text" name="apilink" size=40>
+        </p>
+
+        <p>
+            <input type=submit>
+        </p>
     </form>
     <BR><BR>
 
@@ -102,6 +166,7 @@ if( $_POST == null ){
 } else {
 
     // set up variables with content from form submission
+
     $isbn = $_POST["isbn"];
     $title = $_POST["title"];
     $mediatype = $_POST["mediatype"];
@@ -109,9 +174,18 @@ if( $_POST == null ){
     $condition = $_POST["condition"];
     $notes = $_POST["notes"];
     $shelf_loc = $_POST["shelfloc"];
-    $spilink = $_POST["apilink"];
-    $authors = array($_POST["author1"], $_POST["author2"], $_POST["author3"]);
-    $authortypes = array($_POST["author1type"], $_POST["author2type"], $_POST["author3type"]);
+    $apilink = $_POST["apilink"];
+
+    $authors = array();
+    $authortypes = array();
+
+    $i = 1;
+    while (isset($_POST["author" . $i]))
+    {
+        $authors[] = $_POST["author" . $i];
+        $authortypes[] = $_POST["author" . $i . "type"];
+        $i++;
+    }
 
     // instantiate backend classes, and connect to the database
     $connector = new Connector();
