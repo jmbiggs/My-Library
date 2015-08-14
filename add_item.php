@@ -98,7 +98,6 @@ if( $_POST == null ){
         <!-- DYNAMICALLY ADD TEXT BOXES TO ACCOMMODATE AN ARBITRARY NUMBER OF AUTHORS -->
 
         <p id="authors">
-            <input type=hidden name="authorsCount" value=numAuthors>
             Author #1:
             <input type="text" name="author1" size=30>
             Type:

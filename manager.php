@@ -62,8 +62,13 @@ class Manager {
     public function addItem($ISBN, $ItemCondition, $MediaType, $Notes, $Title, $ShelfLoc, $PubDate, $APILink, $Authors, $AuthorTypes, $con)
     {
         // get a date timestamp
-        $date = date_default_timezone_get();
-        $AqDate = date('Y-m-d', strtotime(str_replace('-', '/', $date)));
+
+        // setting timezone to Denver time- change if you want
+        // supported timezones: http://php.net/manual/en/timezones.php
+        date_default_timezone_set("America/Denver");
+
+        $date = time();
+        $AqDate = date('Y-m-d', $date);
 
         // set up and execute query
 
