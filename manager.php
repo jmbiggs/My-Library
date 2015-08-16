@@ -199,15 +199,94 @@ class Manager {
         }
 
 
-        // TODO: get info about checked out books
+        // now get info about checked out books
 
+        // set up arrays to store info
+        $retrievedItemNos = array();
+        $retrievedTitles = array();
+        $retrievedDatesOut = array();
+        $retrievedDueDates = array();
+
+        // set up query
+        if (isset($patronNo)) // look up record by patron number
+        {
+            //$query = SELECT i.ItemNo, i.Title, c.DateOut, c.DueDate FROM Item i, CheckOut c WHERE c.PatronNo = ? AND c.DateIn IS NULL AND i.ItemNo = c.ItemNo"; // SAFER --- FIGURE OUT HOW TO DO IT THIS WAY!!
+            $query = "SELECT i.ItemNo, i.Title, c.DateOut, c.DueDate FROM Item i, CheckOut c WHERE c.PatronNo = '" . $patronNo . "' AND c.DateIn IS NULL AND i.ItemNo = c.ItemNo";
+        }
+        else // look up record by username
+        {
+            // TODO
+        }
+
+        /*
+
+        // set up prepared statement
+        if (!$ps = $con->prepare($query))
+        {
+            if (empty ($con))
+                echo "Error: No connection established.";
+            else
+                echo "Error: " . $con->error;
+            return;
+        }
+
+        // bind variables to query (using MySQLi)
+        if (isset($patronNo)) {
+            $ps->bind_param("i", $patronNo);
+        }
+        else {
+            $ps->bind_param("s", $username);
+        }
+
+        */
+
+        // execute query and get results
+        $result = $con->query($query);
+
+        if (!$result) {
+            echo "Error: " . $query . "<br>" . $con->error;
+            return;
+        }
+        else {
+            while($row = $result->fetch_assoc()) {
+                $retrievedItemNos[] = $row["ItemNo"];
+                $retrievedTitles[] = $row["Title"];
+                $retrievedDatesOut[] = $row["DateOut"];
+                $retrievedDueDates[] = $row["DueDate"];
+            }
+            $result->close();
+        }
 
         // Print results
 
+        echo "<h2> Patron Record: </h2>";
         echo "Name: " . $retrievedUsername . "<br>";
         echo "Patron number: " . $retrievedPatronNo . "<br>";
         echo "Email: " . $retrievedEmail . "<br>";
 
+        echo "<h2> Items currently checked out: </h2>";
+
+        if (count($retrievedItemNos) == 0){
+            echo "<em>No items currently checked out.</em><br><br>";
+        }
+        else {
+            for ($i = 0; $i < count($retrievedItemNos); $i++) {
+                echo "Item number: " . $retrievedItemNos[$i] . "<br>";
+                echo "Title: " . $retrievedTitles[$i] . "<br>";
+
+                // NOTE: for PHP date formats:
+                // http://php.net/manual/en/function.date.php
+
+                $mysqldate = strtotime($retrievedDatesOut[$i]);
+                $dateToDisplay = date("F d, Y", $mysqldate);
+                echo "Checked out: " . $dateToDisplay . "<br>";
+
+                $mysqldate = strtotime($retrievedDueDates[$i]);
+                $dateToDisplay = date("F d, Y", $mysqldate);
+                echo "Due: " . $dateToDisplay . "<br><br>";
+            }
+            echo "<br><br>";
+        }
     }
 
 }
