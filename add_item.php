@@ -15,6 +15,22 @@
                 alert("Please select a Media Type");
                 return false;
             }
+
+            // check all author fields to make sure that if one is filled in (i.e. author name),
+            //  then the other one is too (i.e. author type)
+            for (i = 1; i<=numAuthors; i++) {
+                if (form_obj["author" + i].value == "" && form_obj["author" + i + "type"].value != "")
+                {
+                    alert("Author name #" + i + " should be nonempty");
+                    return false;
+                }
+                else if (form_obj["author" + i].value != "" && form_obj["author" + i + "type"].value == "")
+                {
+                    alert("Author type #" + i + " should be nonempty");
+                    return false;
+                }
+            }
+
             return true;
         }
 
@@ -23,6 +39,9 @@
         // add author text box element
         function addAuthor()
         {
+          //  if (form_obj["author" + numAuthors].value == "" && form_obj["author" + numAuthors + "type"].value == "") // don't add a row if the last line is blank
+            //    return;
+
             numAuthors++;
 
             var authorParagraph = document.getElementById("authors");
@@ -45,7 +64,7 @@
         // remove author text box element
         function removeAuthor()
         {
-           if(numAuthors > 1)
+           if(numAuthors > 1) // don't remove the very last one!
             {
                 var authorParagraph = document.getElementById("authors");
                 authorParagraph.removeChild(document.getElementById("author"+numAuthors+"section"));
@@ -181,8 +200,10 @@ if( $_POST == null ){
     $i = 1;
     while (isset($_POST["author" . $i]))
     {
-        $authors[] = $_POST["author" . $i];
-        $authortypes[] = $_POST["author" . $i . "type"];
+        if ($_POST["author" . $i] != NULL) { // ignore blank lines
+            $authors[] = $_POST["author" . $i];
+            $authortypes[] = $_POST["author" . $i . "type"];
+        }
         $i++;
     }
 
