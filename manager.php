@@ -124,12 +124,62 @@ class Manager {
         echo $Title . " successfully added. <br><br> Assigned ID number: " . $generated_id . "<br>";
     }
 
-    /*
+
+
+ /*
      * checks an item out to given user, with given number of days as checkout time
      */
-    public function checkOut($itemNo, $patronNo, $days)
+    public function checkOut($itemNo, $patronNo, $days, $con)
     {
+		//TO DO:
+		// Check if item is already checked out. if it is check it in.
+		
+		
+		// get a date timestamp
+		
+		// setting timezone to Denver time- change if you want
+        // supported timezones: http://php.net/manual/en/timezones.php
+        date_default_timezone_set("America/Denver");
 
+
+		$date = time();
+        $DateOut = date('Y-m-d', $date);
+        
+        
+    
+		//ARGGG
+		$DueDate = date('Y-m-d', strtotime("+60 days"));
+		
+		//Not filled until checkin
+		$DateIn = "";
+		
+		// set up and execute query
+        $query = "INSERT INTO CheckOut (DateIn, DateOut, DueDate, PatronNo, ItemNo) VALUES (?, ?, ?, ?, ?)";
+                
+        if (!$ps = $con->prepare($query))
+        {
+			if (empty ($con))
+                echo "Error: No connection established.";
+            else
+                echo "Error: " . $con->error;
+            return;
+        }
+        
+        // set up and execute query (using MySQLi)
+        $ps->bind_param("sssss", $DateIn, $DateOut, $DueDate, $patronNo, $itemNo);
+        
+        $generated_id = -1;
+        if ($ps->execute() === TRUE) 
+        {
+			$generated_id = $con->insert_id;
+            echo "Item " . $itemNo . " has been checked out to patron " . $patronNo . "<br><br> Due date: " . $DueDate;
+        } 
+        else 
+        {
+            echo "Error: " . $query . "<br>" . $con->error;
+        }
+
+        $ps->close();
     }
 
     /*
