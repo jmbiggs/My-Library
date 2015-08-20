@@ -151,7 +151,7 @@ class Manager {
 		$DueDate = date('Y-m-d', strtotime("+60 days"));
 		
 		//Not filled until checkin
-		$DateIn = "";
+		$DateIn = null;
 		
 		// set up and execute query
         $query = "INSERT INTO CheckOut (DateIn, DateOut, DueDate, PatronNo, ItemNo) VALUES (?, ?, ?, ?, ?)";
