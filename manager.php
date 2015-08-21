@@ -148,8 +148,9 @@ class Manager {
         
     
 		//ARGGG
-		$DueDate = date('Y-m-d', strtotime("+60 days"));
-		
+		//$DueDate = date('Y-m-d', strtotime("+60 days"));
+		$DueDate = date('Y-m-d', strtotime("+" . $days . "days"));
+
 		//Not filled until checkin
 		$DateIn = null;
 		
