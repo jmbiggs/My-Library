@@ -125,6 +125,18 @@ class Manager {
     }
 
 
+	/*
+	 * checks an item in. How does this happen exactly? 
+	 * I personally don't want to keep logs.
+	 * and wouldn't mind if it deleted the item from the CheckOut Table
+	 * that would also make the checkout query easier.
+	 * Or we just add the checkin date and will have to check if that is
+	 * Null in checkOut. ???
+	 * */
+	public function checkIn($itemNo, $con)
+	{
+		// INSERT INTO CHECKOUT THE DAY IT CHECKED IN
+	}
 
  /*
      * checks an item out to given user, with given number of days as checkout time
@@ -133,6 +145,13 @@ class Manager {
     {
 		//TO DO:
 		// Check if item is already checked out. if it is check it in.
+		
+		$query = "SELECT * FROM CheckOut WHERE itemNo = '" . $itemNo . "'";
+		
+		if( )
+		{
+			
+		}
 		
 		
 		// get a date timestamp
