@@ -138,7 +138,7 @@ class Manager {
 		// INSERT INTO CHECKOUT THE DAY IT CHECKED IN
 	}
 
- /*
+    /*
      * checks an item out to given user, with given number of days as checkout time
      */
     public function checkOut($itemNo, $patronNo, $days, $con)

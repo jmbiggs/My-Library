@@ -72,6 +72,68 @@
             }
         }
 
+        function queryOpenLibrary(isbn)
+        {
+            // do nothing if nothing is in the ISBN text box
+            if(isbn == "")
+            {
+                return;
+            }
+
+            // NOTE: I am using a CORS proxy (https://crossorigin.me/) in order to send the request to a different server.
+            //  This is probably not a good long term solution, but the OL API doesn't appear to support CORS yet.
+
+            var requestString = "https://crossorigin.me/" + "https://openlibrary.org/api/books?" + "format=json" + "&jscmd=data" + "&bibkeys=ISBN:" + encodeURIComponent(isbn);
+            var request = new XMLHttpRequest();
+
+            if ("withCredentials" in request) {
+                request.open("GET", requestString, true);
+
+                request.onreadystatechange = function () {
+                    if (request.readyState === 4) {
+                        if (request.status >= 200 && request.status < 400) {
+
+                            var response = request.responseText;
+                            var parsedResponse = JSON.parse(response);
+
+                            if(Object.keys(parsedResponse).length === 0)
+                            {
+                                alert("No results found in OpenLibrary.");
+                            }
+                            else {
+                                var bookInfo = parsedResponse["ISBN:" + isbn];
+
+                                var title = bookInfo["title"];
+                                var authors = bookInfo["authors"];
+                                var date = bookInfo["publish_date"];
+                                var apiLink = bookInfo["identifiers"]["openlibrary"][0];
+
+                                console.log("Title: " + title);
+                                document.getElementById("title").value = title;
+//                                form_obj.title.value = title;
+
+                                for (i = 0; i < authors.length; i++) {
+                                    console.log("Author: " + authors[i]["name"]);
+                                }
+
+                                console.log("Publication Date: " + date);
+                                document.getElementById("pubdate").value = date;
+//                                form_obj.pubdate.value = date;
+
+                                console.log("API Link: " + apiLink);
+                                document.getElementById("apilink").value = apiLink;
+//                                form_obj.apilink.value = apiLink;
+                            }
+                        }
+                        else {
+                            alert("Problem connecting to OpenLibrary");
+                        }
+                    }
+                };
+                request.send();
+            }
+        }
+
 
     </script>
 
@@ -108,10 +170,11 @@ if( $_POST == null ){
         <p>
           ISBN:
            <input type="text" name="isbn" size=40>
+            <input type="button" onclick="queryOpenLibrary(isbn.value)" value="Check with Open Library">
         </p>
         <p>
           Title (required):
-          <input type="text" name="title" size=40>
+          <input type="text" name="title" id="title" size=40>
         </p>
 
         <!-- DYNAMICALLY ADD TEXT BOXES TO ACCOMMODATE AN ARBITRARY NUMBER OF AUTHORS -->
@@ -154,7 +217,7 @@ if( $_POST == null ){
         </p>
         <p>
             Publication Date:
-            <input type="text" name="pubdate" size=20>
+            <input type="text" name="pubdate" id="pubdate" size=20>
         </p>
         <p>
             Condition:
@@ -170,7 +233,7 @@ if( $_POST == null ){
         </p>
         <p>
             API Link:
-            <input type="text" name="apilink" size=40>
+            <input type="text" name="apilink" id="apilink" size=40>
         </p>
 
         <p>
