@@ -49,8 +49,8 @@
             var authorHTML = document.createElement("div");
             authorHTML.setAttribute("id","author"+numAuthors+"section");
             authorHTML.innerHTML = "Author #"+numAuthors.toString()+": " +
-                                    "<input type='text' name='author"+numAuthors.toString()+"' size=30>" +
-                                    " Type: <select name='author"+numAuthors.toString()+"type'>" +
+                                    "<input type='text' name='author"+numAuthors.toString()+"' id='author"+numAuthors.toString()+"' size=30>" +
+                                    " Type: <select name='author"+numAuthors.toString()+"type' id='author"+numAuthors.toString()+"type'>" +
                                         "<option value=''>Select...</option>" +
                                         "<option value='Writer'>Writer</option>" +
                                         "<option value='Introduction'>Introduction</option>" +
@@ -72,6 +72,16 @@
             }
         }
 
+        // removes all authors
+        function removeAllAuthors()
+        {
+            for (var i = 0; i < numAuthors; i++)
+            {
+                removeAuthor();
+            }
+        }
+
+        // fill in certain input boxes with info from Open Library API
         function queryOpenLibrary(isbn)
         {
             // do nothing if nothing is in the ISBN text box
@@ -108,25 +118,98 @@
                                 var date = bookInfo["publish_date"];
                                 var apiLink = bookInfo["identifiers"]["openlibrary"][0];
 
-                                console.log("Title: " + title);
+                                //console.log("Title: " + title);
                                 document.getElementById("title").value = title;
-//                                form_obj.title.value = title;
 
-                                for (i = 0; i < authors.length; i++) {
-                                    console.log("Author: " + authors[i]["name"]);
+                                removeAllAuthors();
+                                for (var i = 0; i < authors.length; i++) {
+                                    //console.log("Author: " + authors[i]["name"]);
+                                    if (i > 0)
+                                    {
+                                        addAuthor();
+                                    }
+
+                                    document.getElementById("author" + (i+1).toString()).value = authors[i]["name"];
+                                    document.getElementById("author" + (i+1).toString() + "type").value = "Writer";
                                 }
 
-                                console.log("Publication Date: " + date);
+                                //console.log("Publication Date: " + date);
                                 document.getElementById("pubdate").value = date;
-//                                form_obj.pubdate.value = date;
 
-                                console.log("API Link: " + apiLink);
-                                document.getElementById("apilink").value = apiLink;
-//                                form_obj.apilink.value = apiLink;
+                                //console.log("API Link: " + apiLink);
+                                document.getElementById("apilink").value = "OpenLibrary: " + apiLink;
                             }
                         }
                         else {
                             alert("Problem connecting to OpenLibrary");
+                        }
+                    }
+                };
+                request.send();
+            }
+        }
+
+        // fill in certain input boxes with info from Google Books API
+        function queryGoogleBooks(isbn)
+        {
+            // do nothing if nothing is in the ISBN text box
+            if(isbn == "")
+            {
+                return;
+            }
+
+            // NOTE: I am using a CORS proxy (https://crossorigin.me/) in order to send the request to a different server.
+            //  This is probably not a good long term solution, but the OL API doesn't appear to support CORS yet.
+
+            var requestString = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + encodeURIComponent(isbn);
+            var request = new XMLHttpRequest();
+
+            if ("withCredentials" in request) {
+                request.open("GET", requestString, true);
+
+                request.onreadystatechange = function () {
+                    if (request.readyState === 4) {
+                        if (request.status >= 200 && request.status < 400) {
+
+                            var response = request.responseText;
+                            var parsedResponse = JSON.parse(response);
+
+                            if(parsedResponse["totalItems"] === 0)
+                            {
+                                alert("No results found in Google Books.");
+                            }
+                            else {
+                                var bookInfo = parsedResponse["items"][0]; // we're just going to take the first result
+
+                                var title = bookInfo["volumeInfo"]["title"];
+                                var authors = bookInfo["volumeInfo"]["authors"];
+                                var date = bookInfo["volumeInfo"]["publishedDate"];
+                                var apiLink = bookInfo["id"];
+
+                                //console.log("Title: " + title);
+                                document.getElementById("title").value = title;
+
+                                removeAllAuthors();
+                                for (var i = 0; i < authors.length; i++) {
+                                    //console.log("Author: " + authors[i]);
+                                    if (i > 0)
+                                    {
+                                        addAuthor();
+                                    }
+
+                                    document.getElementById("author" + (i+1).toString()).value = authors[i];
+                                    document.getElementById("author" + (i+1).toString() + "type").value = "Writer";
+                                }
+
+                                //console.log("Publication Date: " + date);
+                                document.getElementById("pubdate").value = date;
+
+                                //console.log("API Link: " + apiLink);
+                                document.getElementById("apilink").value = "GoogleBooks: " + apiLink;
+                            }
+                        }
+                        else {
+                            alert("Problem connecting to Google Books");
                         }
                     }
                 };
@@ -167,34 +250,8 @@ if( $_POST == null ){
     <h2>Add a new item:</h2>
     <form name="search" method=post onsubmit="return check_all_fields(this)" action="add_item.php">
         <input type="hidden" name="searchAttribute" value="addItem">
-        <p>
-          ISBN:
-           <input type="text" name="isbn" size=40>
-            <input type="button" onclick="queryOpenLibrary(isbn.value)" value="Check with Open Library">
-        </p>
-        <p>
-          Title (required):
-          <input type="text" name="title" id="title" size=40>
-        </p>
 
-        <!-- DYNAMICALLY ADD TEXT BOXES TO ACCOMMODATE AN ARBITRARY NUMBER OF AUTHORS -->
 
-        <p id="authors">
-            Author #1:
-            <input type="text" name="author1" size=30>
-            Type:
-            <select name="author1type">
-                <option value="">Select...</option>
-                <option value="Writer">Writer</option>
-                <option value="Introduction">Introduction</option>
-                <option value="Illustrator">Illustrator</option>
-            </select>
-            <br>
-        </p>
-        <p>
-            <input type="button" onclick="addAuthor()" value="Add another author">
-           <input type="button" onclick="removeAuthor()" value="Remove last author">
-        </p>
         <p>
             MediaType (required):
             <select name="mediatype">
@@ -214,6 +271,35 @@ if( $_POST == null ){
                 <option value="Blu-Ray">Blu-Ray</option>
 
             </select>
+        </p>
+        <p>
+          ISBN:
+           <input type="text" name="isbn" size=40>
+            <input type="button" onclick="queryOpenLibrary(isbn.value)" value="Check with Open Library">
+            <input type="button" onclick="queryGoogleBooks(isbn.value)" value="Check with Google Books">
+        </p>
+        <p>
+          Title (required):
+          <input type="text" name="title" id="title" size=40>
+        </p>
+
+        <!-- DYNAMICALLY ADD TEXT BOXES TO ACCOMMODATE AN ARBITRARY NUMBER OF AUTHORS -->
+
+        <p id="authors">
+            Author #1:
+            <input type="text" name="author1" id="author1" size=30>
+            Type:
+            <select name="author1type" id="author1type">
+                <option value="">Select...</option>
+                <option value="Writer">Writer</option>
+                <option value="Introduction">Introduction</option>
+                <option value="Illustrator">Illustrator</option>
+            </select>
+            <br>
+        </p>
+        <p>
+            <input type="button" onclick="addAuthor()" value="Add another author">
+           <input type="button" onclick="removeAuthor()" value="Remove last author">
         </p>
         <p>
             Publication Date:
