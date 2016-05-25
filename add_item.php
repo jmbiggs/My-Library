@@ -158,9 +158,6 @@
                 return;
             }
 
-            // NOTE: I am using a CORS proxy (https://crossorigin.me/) in order to send the request to a different server.
-            //  This is probably not a good long term solution, but the OL API doesn't appear to support CORS yet.
-
             var requestString = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + encodeURIComponent(isbn);
             var request = new XMLHttpRequest();
 
@@ -217,6 +214,107 @@
             }
         }
 
+        // fill in certain input boxes with info from Discogs API
+        function queryDiscogs(isbn)
+        {
+
+            var token = document.getElementById("discogsToken").value;
+
+            // do nothing if nothing is in the ISBN text box
+            if(isbn == "" || token == "")
+            {
+                return;
+            }
+
+            // run a query to get the discogs id
+
+            var requestString = "https://api.discogs.com/database/search?barcode=" + encodeURIComponent(isbn) + "&token=" + token;
+            var request = new XMLHttpRequest();
+            var apiLink = "";
+
+            if ("withCredentials" in request) {
+                request.open("GET", requestString, true);
+
+                request.onreadystatechange = function () {
+                    if (request.readyState === 4) {
+                        if (request.status >= 200 && request.status < 400) {
+
+                            var response = request.responseText;
+                            var parsedResponse = JSON.parse(response);
+
+                            if(parsedResponse["totalItems"] === 0)
+                            {
+                                alert("No results found on Discogs.");
+                            }
+                            else {
+                                var mediaInfo = parsedResponse["results"][0]; // we're just going to take the first result
+                                apiLink = mediaInfo["id"];
+                                document.getElementById("apilink").value = "Discogs: " + apiLink;
+                            }
+
+
+                            // now, using the discogs id, make another query to get the other info
+
+                            // return if we didn't get an id
+                            if (apiLink == "") {
+                                return;
+                            }
+
+                            var requestString2 = "https://api.discogs.com/releases/" + apiLink;
+                            var request2 = new XMLHttpRequest();
+
+                            if ("withCredentials" in request2) {
+                                request2.open("GET", requestString2, true);
+
+                                request2.onreadystatechange = function () {
+                                    if (request2.readyState === 4) {
+                                        if (request2.status >= 200 && request2.status < 400) {
+
+                                            var response = request2.responseText;
+                                            var parsedResponse = JSON.parse(response);
+
+                                            var title = parsedResponse["title"];
+                                            var authors = parsedResponse["artists"];
+                                            var date = parsedResponse["released"];
+                                            //var date = parsedResponse["year"];  // this one has just the year
+
+                                            //console.log("Title: " + title);
+                                            document.getElementById("title").value = title;
+
+                                            removeAllAuthors();
+                                            for (var i = 0; i < authors.length; i++) {
+                                                //console.log("Author: " + authors[i]);
+                                                if (i > 0)
+                                                {
+                                                    addAuthor();
+                                                }
+
+                                                document.getElementById("author" + (i+1).toString()).value = authors[i]["name"];
+                                                document.getElementById("author" + (i+1).toString() + "type").value = "Writer";
+                                            }
+
+                                            //console.log("Publication Date: " + date);
+                                            document.getElementById("pubdate").value = date;
+                                        }
+                                        else {
+                                            alert("Problem connecting to Discogs");
+                                        }
+                                    }
+                                };
+                                request2.send();
+                            }
+
+
+
+                        }
+                        else {
+                            alert("Problem connecting to Discogs");
+                        }
+                    }
+                };
+                request.send();
+            }
+        }
 
     </script>
 
@@ -241,9 +339,13 @@
 // include our backend classes
 require "connector.php";
 require "manager.php";
+require "credentials.php";
 
 // if no form has been submitted yet, load the submission form html
 if( $_POST == null ){
+
+    $cred = new Credentials();
+    echo '<input type="hidden" id="discogsToken" value="' . $cred->discogs_token . '"  />';
 
     ?>
 
@@ -277,6 +379,7 @@ if( $_POST == null ){
            <input type="text" name="isbn" size=40>
             <input type="button" onclick="queryOpenLibrary(isbn.value)" value="Check with Open Library">
             <input type="button" onclick="queryGoogleBooks(isbn.value)" value="Check with Google Books">
+            <input type="button" onclick="queryDiscogs(isbn.value)" value="Check with Discogs">
         </p>
         <p>
           Title (required):
@@ -372,7 +475,7 @@ if( $_POST == null ){
 ?>
 
 <BR><a href="add_item.php"> Add another item </a>
-<BR><a href="index.html"> Main menu </a></p>
+<BR><a href="index.html"> Main menu </a>
 
 </body>
 </html>
