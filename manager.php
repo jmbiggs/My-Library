@@ -5,7 +5,6 @@
  *  5-19-2015
  */
 
-
 class Manager {
 
     /*
@@ -148,11 +147,12 @@ class Manager {
 		
 		$query = "SELECT * FROM CheckOut WHERE itemNo = '" . $itemNo . "'";
 		
+		/*
 		if( )
 		{
 			
 		}
-		
+		*/
 		
 		// get a date timestamp
 		
@@ -216,7 +216,7 @@ class Manager {
         $retrievedEmail = null;
 
         // set up query
-        if (isset($patronNo)) // look up record by patron number
+        if(!empty($patronNo)) // look up record by patron number
         {
             //$query = "SELECT * FROM Patron WHERE PatronNo = ?"; // SAFER --- FIGURE OUT HOW TO DO IT THIS WAY!!
             $query = "SELECT * FROM Patron WHERE PatronNo = '" . $patronNo . "'";
@@ -262,7 +262,7 @@ class Manager {
             $retrievedUsername = $row["Name"];
             $retrievedEmail = $row["Email"];
             $result->close();
-        } else {
+        } else {        
             echo "No patron found with Patron Number: " . $patronNo . " Username: " . $username . "<br>";
             $result->close();
             return;
